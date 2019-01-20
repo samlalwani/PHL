@@ -1,5 +1,8 @@
 import pandas as pd
 import numpy as np
+import ipywidgets as widgets
+from ipywidgets import Layout
+from IPython.display import display
 
 
 def e_test(df):
@@ -18,7 +21,7 @@ def e_test(df):
 
 
 def shade(df):
-    return_ = """
+    """
     This function determines the row to be shaded
     :param df: 
     :return: 
@@ -77,6 +80,77 @@ def cfu_calc(mEndo_typ, mEndo_atyp, mFc_typ, mFc_atyp):
     df_meas = df_meas.drop(columns=['CFU/mL']).rename(columns={'results': 'CFU/mL'})
 
     return df_meas
+
+
+# The following functions are used to read data from widgets & to display the results
+
+def highlight_row(row):
+    '''
+    Highlight the row where shade = True.
+    '''
+    if row['shade']:
+        return ['background-color: yellow' for _ in range(row.shape[0])]
+    else:
+        return ['background-color: white' for _ in range(row.shape[0])]
+
+
+def create_input_widget():
+    """
+    This function creates widget to read the inputs
+    :return:
+    """
+    box_dilution_factor = widgets.VBox([widgets.Label(value="Dilution Factor", layout=Layout(width='15'))] + [widgets.Label(value=str(i)) for i in [1, 1, 1, 0.1, 0.01, 0.001]])
+    box_volume_ml = widgets.VBox([widgets.Label(value="Volume mL")] + [widgets.Label(value=str(i)) for i in [0.5, 5, 50]] * 2)
+
+    box_mEndo_typ = widgets.VBox([widgets.Label(value="mEndo Typical")] + [widgets.Text(value='0', layout=Layout(width='auto')) for i in range(6)])
+    box_mEndo_atyp = widgets.VBox([widgets.Label(value="mEndo Atypical")] + [widgets.Text(value='0', layout=Layout(width='auto')) for i in range(6)])
+    box_mFC_typ = widgets.VBox([widgets.Label(value="mFC Typical")] + [widgets.Text(value='0', layout=Layout(width='auto')) for i in range(6)])
+    box_mFC_atyp = widgets.VBox([widgets.Label(value="mFC Atypical")] + [widgets.Text(value='0', layout=Layout(width='auto')) for i in range(6)])
+
+    input_widget = widgets.HBox([box_dilution_factor, box_volume_ml, box_mEndo_typ, box_mEndo_atyp, box_mFC_typ, box_mFC_atyp], border=True)
+
+    return input_widget
+
+
+def display_results(input_widget):
+    """
+
+    :param input_widget:
+    :return:
+    """
+    col = 2
+    col_val = input_widget.children[col]
+    mEndo_typ = [item.value for item in list(col_val.children)[1:]]
+
+    col = 3
+    col_val = input_widget.children[col]
+    mEndo_atyp = [item.value for item in list(col_val.children)[1:]]
+
+    col = 4
+    col_val = input_widget.children[col]
+    mFc_typ = [item.value for item in list(col_val.children)[1:]]
+
+    col = 5
+    col_val = input_widget.children[col]
+    mFc_atyp = [item.value for item in list(col_val.children)[1:]]
+
+    results = cfu_calc(mEndo_typ, mEndo_atyp, mFc_typ, mFc_atyp)
+
+    print("mEndo Inputs")
+    summary_mEndo = results.loc[results.Coliforms == 'mEndo', ['Dilution Factor', 'Volume mL', 'Typical Colonies', 'Atypical Colonies', 'shade']]
+    summary_mEndo = summary_mEndo.style.apply(highlight_row, axis=1).hide_index()
+    results_mEndo = results.loc[(results.Coliforms == 'mEndo') & results.shade, ['Dilution Factor', 'Volume mL', 'Typical Colonies', 'Atypical Colonies', 'Total Colonies', 'CFU/mL']].style.hide_index()
+
+    summary_mFC = results.loc[results.Coliforms == 'mFC', ['Dilution Factor', 'Volume mL', 'Typical Colonies', 'Atypical Colonies', 'shade']]
+    summary_mFC = summary_mFC.style.apply(highlight_row, axis=1).hide_index()
+    results_mFC = results.loc[(results.Coliforms == 'mFC') & results.shade, ['Dilution Factor', 'Volume mL', 'Typical Colonies', 'Atypical Colonies', 'Total Colonies', 'CFU/mL']].style.hide_index()
+
+    display(summary_mEndo)
+    display(results_mEndo)
+
+    print("mFC Inputs")
+    display(summary_mFC)
+    display(results_mFC)
 
 
 if __name__ == '__main__':
