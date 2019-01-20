@@ -1,7 +1,6 @@
-name: phl
-  dependencies:
-    - numpy
-    - pandas
-    - ipywidgets
-    - IPython
+dependencies:
+  - numpy
+  - pandas
+  - ipywidgets
+  - IPython
 
