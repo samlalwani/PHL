@@ -33,28 +33,25 @@ def shade(df):
 
 
 def cfu_calc(mEndo_typ, mEndo_atyp, mFc_typ, mFc_atyp):
-    df_meas_mEndo = pd.DataFrame.from_dict({'Dilution Factor': [1, 1, 1, 0.1, 0.01, 0.001], 'Volume mL': [0.5, 5, 50, 0.5, 5, 50]})
+    df_meas_mEndo = pd.DataFrame.from_dict(
+        {'Dilution Factor': [1, 1, 1, 0.1, 0.01, 0.001], 'Volume mL': [0.5, 5, 50, 0.5, 5, 50], 'Typical Colonies': np.array(mEndo_typ).astype('str'), 'Atypical Colonies': np.array(mEndo_atyp).astype('str')})
     df_meas_mEndo['Coliforms'] = 'mEndo'
 
-    df_meas_mFC = pd.DataFrame.from_dict({'Dilution Factor': [1, 1, 1, 0.1, 0.01, 0.001], 'Volume mL': [0.5, 5, 50, 0.5, 5, 50]})
+    df_meas_mFC = pd.DataFrame.from_dict(
+        {'Dilution Factor': [1, 1, 1, 0.1, 0.01, 0.001], 'Volume mL': [0.5, 5, 50, 0.5, 5, 50], 'Typical Colonies': np.array(mFc_typ).astype('str'), 'Atypical Colonies': np.array(mFc_atyp).astype('str')})
     df_meas_mFC['Coliforms'] = 'mFC'
 
     df_meas = pd.concat([df_meas_mEndo, df_meas_mFC], ignore_index=True)
-
-    df_meas['Typical Colonies'] = ''
-    df_meas['Atypical Colonies'] = ''
-
-    df_meas.loc[df_meas['Coliforms'] == 'mEndo', 'Typical Colonies'] = np.array(mEndo_typ).astype('str')
-    df_meas.loc[df_meas['Coliforms'] == 'mEndo', 'Atypical Colonies'] = np.array(mEndo_atyp).astype('str')
-
-    df_meas.loc[df_meas['Coliforms'] == 'mFC', 'Typical Colonies'] = np.array(mFc_typ).astype('str')
-    df_meas.loc[df_meas['Coliforms'] == 'mFC', 'Atypical Colonies'] = np.array(mFc_atyp).astype('str')
 
     # Replace '>200' by 201
     df_meas['num_Typical_Colonies'] = np.where(df_meas['Typical Colonies'] == '>200', 201, df_meas['Typical Colonies']).astype('int')
     df_meas['num_Atypical_Colonies'] = np.where(df_meas['Atypical Colonies'] == '>200', 201, df_meas['Atypical Colonies']).astype('int')
 
     df_meas['Total Colonies'] = df_meas['num_Typical_Colonies'] + df_meas['num_Atypical_Colonies']
+
+    # Reporting Limit
+    # TODO Check equation
+    df_meas['Reporting Limit'] = 100 / df_meas['Volume mL'] / df_meas['Dilution Factor']
 
     # Invalid Calculation
     df_meas['Invalid'] = df_meas['Total Colonies'] > 200
@@ -140,11 +137,11 @@ def display_results(input_widget):
     print("mEndo Inputs")
     summary_mEndo = results.loc[results.Coliforms == 'mEndo', ['Dilution Factor', 'Volume mL', 'Typical Colonies', 'Atypical Colonies', 'shade']]
     summary_mEndo = summary_mEndo.style.apply(highlight_row, axis=1).hide_index()
-    results_mEndo = results.loc[(results.Coliforms == 'mEndo') & results.shade, ['Dilution Factor', 'Volume mL', 'Typical Colonies', 'Atypical Colonies', 'Total Colonies', 'CFU/mL']].style.hide_index()
+    results_mEndo = results.loc[(results.Coliforms == 'mEndo') & results.shade, ['Dilution Factor', 'Volume mL', 'Typical Colonies', 'Atypical Colonies', 'Total Colonies', 'CFU/mL', 'Reporting Limit']].style.hide_index()
 
     summary_mFC = results.loc[results.Coliforms == 'mFC', ['Dilution Factor', 'Volume mL', 'Typical Colonies', 'Atypical Colonies', 'shade']]
     summary_mFC = summary_mFC.style.apply(highlight_row, axis=1).hide_index()
-    results_mFC = results.loc[(results.Coliforms == 'mFC') & results.shade, ['Dilution Factor', 'Volume mL', 'Typical Colonies', 'Atypical Colonies', 'Total Colonies', 'CFU/mL']].style.hide_index()
+    results_mFC = results.loc[(results.Coliforms == 'mFC') & results.shade, ['Dilution Factor', 'Volume mL', 'Typical Colonies', 'Atypical Colonies', 'Total Colonies', 'CFU/mL', 'Reporting Limit']].style.hide_index()
 
     display(summary_mEndo)
     display(results_mEndo)
