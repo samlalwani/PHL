@@ -26,7 +26,7 @@ def shade(df):
     :param df: 
     :return: 
     """
-    df_temp = df.sort_values(by=['Invalid', 'Dilution Factor', 'Volume mL'], ascending=[True, True, False])
+    df_temp = df.sort_values(by=['Invalid', 'less_than', 'e', 'Dilution Factor', 'Volume mL'], ascending=[True, True, True, False, False])
     shade_index = df_temp.index[0]
 
     return shade_index
@@ -66,7 +66,8 @@ def cfu_calc(mEndo_typ, mEndo_atyp, mFc_typ, mFc_atyp):
     # < calculation
     df_meas['less_than'] = (df_meas['num_Typical_Colonies'] == 0) & (~df_meas['Invalid'])
 
-    df_meas['CFU/mL'] = df_meas['num_Typical_Colonies'] * df_meas['Dilution Factor'] / df_meas['Volume mL'] * 100
+    # TODO Check calculation in documentation
+    df_meas['CFU/mL'] = df_meas['num_Typical_Colonies'] * (100 / df_meas['Volume mL']) / df_meas['Dilution Factor']
     df_meas['results'] = df_meas['CFU/mL'].astype('str')
 
     df_meas['results'] = df_meas['results'].where(~df_meas['e'], df_meas['results'] + 'e')
@@ -154,10 +155,20 @@ def display_results(input_widget):
 
 
 if __name__ == '__main__':
+    # Case 1
     mEndo_typ = [0, 0, 4, 21, 0, 0]
     mEndo_atyp = [1, 7, 17, 0, 0, 0]
 
     mFc_typ = [0, 0, 1, 0, 0, 0]
     mFc_atyp = [0, 0, 0, 0, 0, 0]
 
+    # Case 2
+    mEndo_typ = [20, '>200', '>200', 5, 2, 0]
+    mEndo_atyp = [46, '>200', '>200', 6, 1, 0]
+
+    mFc_typ = [0, 11, 109, 1, 0, 0]
+    mFc_atyp = [0, 0, 0, 0, 0, 0]
+
     results = cfu_calc(mEndo_typ, mEndo_atyp, mFc_typ, mFc_atyp)
+
+    a = 1
