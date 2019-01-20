@@ -65,7 +65,7 @@ def cfu_calc(mEndo_typ, mEndo_atyp, mFc_typ, mFc_atyp):
     df_meas['less_than'] = (df_meas['num_Typical_Colonies'] == 0) & (~df_meas['Invalid'])
 
     # TODO Check calculation in documentation
-    df_meas['CFU/mL'] = df_meas['num_Typical_Colonies'] * (100 / df_meas['Volume mL']) / df_meas['Dilution Factor']
+    df_meas['CFU/mL'] = df_meas['num_Typical_Colonies'].where(df_meas['num_Typical_Colonies'] > 0, 1) * (100 / df_meas['Volume mL']) / df_meas['Dilution Factor']
     df_meas['results'] = df_meas['CFU/mL'].astype('int').astype('str')
 
     df_meas['results'] = df_meas['results'].where(~df_meas['e'], df_meas['results'] + 'e')
@@ -101,9 +101,8 @@ def create_input_widget():
     dilution_factor = [1, 1, 1, 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001]
     volume_ml = [0.5, 5, 50, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
 
-
     box_dilution_factor = widgets.VBox([widgets.Label(value="Dilution Factor", layout=Layout(width='15'))] + [widgets.Label(value=str(i)) for i in dilution_factor])
-    box_volume_ml = widgets.VBox([widgets.Label(value="Volume mL")] + [widgets.Label(value=str(i)) for i in volume_ml] )
+    box_volume_ml = widgets.VBox([widgets.Label(value="Volume mL")] + [widgets.Label(value=str(i)) for i in volume_ml])
 
     box_mEndo_typ = widgets.VBox([widgets.Label(value="mEndo Typical")] + [widgets.Text(value='0', layout=Layout(width='auto')) for i in range(9)])
     box_mEndo_atyp = widgets.VBox([widgets.Label(value="mEndo Atypical")] + [widgets.Text(value='0', layout=Layout(width='auto')) for i in range(9)])
