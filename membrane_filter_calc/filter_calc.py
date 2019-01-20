@@ -33,12 +33,13 @@ def shade(df):
 
 
 def cfu_calc(mEndo_typ, mEndo_atyp, mFc_typ, mFc_atyp):
-    df_meas_mEndo = pd.DataFrame.from_dict(
-        {'Dilution Factor': [1, 1, 1, 0.1, 0.01, 0.001], 'Volume mL': [0.5, 5, 50, 0.5, 0.5, 0.5], 'Typical Colonies': np.array(mEndo_typ).astype('str'), 'Atypical Colonies': np.array(mEndo_atyp).astype('str')})
+    dilution_factor = [1, 1, 1, 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001]
+    volume_ml = [0.5, 5, 50, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+
+    df_meas_mEndo = pd.DataFrame.from_dict({'Dilution Factor': dilution_factor, 'Volume mL': volume_ml, 'Typical Colonies': np.array(mEndo_typ).astype('str'), 'Atypical Colonies': np.array(mEndo_atyp).astype('str')})
     df_meas_mEndo['Coliforms'] = 'mEndo'
 
-    df_meas_mFC = pd.DataFrame.from_dict(
-        {'Dilution Factor': [1, 1, 1, 0.1, 0.01, 0.001], 'Volume mL': [0.5, 5, 50, 0.5, 0.5, 0.5], 'Typical Colonies': np.array(mFc_typ).astype('str'), 'Atypical Colonies': np.array(mFc_atyp).astype('str')})
+    df_meas_mFC = pd.DataFrame.from_dict({'Dilution Factor': dilution_factor, 'Volume mL': volume_ml, 'Typical Colonies': np.array(mFc_typ).astype('str'), 'Atypical Colonies': np.array(mFc_atyp).astype('str')})
     df_meas_mFC['Coliforms'] = 'mFC'
 
     df_meas = pd.concat([df_meas_mEndo, df_meas_mFC], ignore_index=True)
@@ -65,7 +66,7 @@ def cfu_calc(mEndo_typ, mEndo_atyp, mFc_typ, mFc_atyp):
 
     # TODO Check calculation in documentation
     df_meas['CFU/mL'] = df_meas['num_Typical_Colonies'] * (100 / df_meas['Volume mL']) / df_meas['Dilution Factor']
-    df_meas['results'] = df_meas['CFU/mL'].astype('str')
+    df_meas['results'] = df_meas['CFU/mL'].astype('int').astype('str')
 
     df_meas['results'] = df_meas['results'].where(~df_meas['e'], df_meas['results'] + 'e')
     df_meas['results'] = df_meas['results'].where(~df_meas['less_than'], '<' + df_meas['results'])
@@ -97,13 +98,17 @@ def create_input_widget():
     This function creates widget to read the inputs
     :return:
     """
-    box_dilution_factor = widgets.VBox([widgets.Label(value="Dilution Factor", layout=Layout(width='15'))] + [widgets.Label(value=str(i)) for i in [1, 1, 1, 0.1, 0.01, 0.001]])
-    box_volume_ml = widgets.VBox([widgets.Label(value="Volume mL")] + [widgets.Label(value=str(i)) for i in [0.5, 5, 50]] * 2)
+    dilution_factor = [1, 1, 1, 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001]
+    volume_ml = [0.5, 5, 50, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
 
-    box_mEndo_typ = widgets.VBox([widgets.Label(value="mEndo Typical")] + [widgets.Text(value='0', layout=Layout(width='auto')) for i in range(6)])
-    box_mEndo_atyp = widgets.VBox([widgets.Label(value="mEndo Atypical")] + [widgets.Text(value='0', layout=Layout(width='auto')) for i in range(6)])
-    box_mFC_typ = widgets.VBox([widgets.Label(value="mFC Typical")] + [widgets.Text(value='0', layout=Layout(width='auto')) for i in range(6)])
-    box_mFC_atyp = widgets.VBox([widgets.Label(value="mFC Atypical")] + [widgets.Text(value='0', layout=Layout(width='auto')) for i in range(6)])
+
+    box_dilution_factor = widgets.VBox([widgets.Label(value="Dilution Factor", layout=Layout(width='15'))] + [widgets.Label(value=str(i)) for i in dilution_factor])
+    box_volume_ml = widgets.VBox([widgets.Label(value="Volume mL")] + [widgets.Label(value=str(i)) for i in volume_ml] )
+
+    box_mEndo_typ = widgets.VBox([widgets.Label(value="mEndo Typical")] + [widgets.Text(value='0', layout=Layout(width='auto')) for i in range(9)])
+    box_mEndo_atyp = widgets.VBox([widgets.Label(value="mEndo Atypical")] + [widgets.Text(value='0', layout=Layout(width='auto')) for i in range(9)])
+    box_mFC_typ = widgets.VBox([widgets.Label(value="mFC Typical")] + [widgets.Text(value='0', layout=Layout(width='auto')) for i in range(9)])
+    box_mFC_atyp = widgets.VBox([widgets.Label(value="mFC Atypical")] + [widgets.Text(value='0', layout=Layout(width='auto')) for i in range(9)])
 
     input_widget = widgets.HBox([box_dilution_factor, box_volume_ml, box_mEndo_typ, box_mEndo_atyp, box_mFC_typ, box_mFC_atyp], border=True)
 
@@ -166,6 +171,6 @@ if __name__ == '__main__':
     mFc_typ = [0, 11, 109, 1, 0, 0]
     mFc_atyp = [0, 0, 0, 0, 0, 0]
 
-    results = cfu_calc(mEndo_typ, mEndo_atyp, mFc_typ, mFc_atyp)
+    # results = cfu_calc(mEndo_typ, mEndo_atyp, mFc_typ, mFc_atyp)
 
     a = 1
