@@ -11,7 +11,7 @@ def e_test(df):
     :param df:
     :return:
     """
-    if df['Coliforms'].unique()[0] == 'mFC':
+    if df['Coliforms'].unique()[0] == 'mEndo':
         typ_range = [20, 80]
     else:
         typ_range = [20, 60]
@@ -34,11 +34,11 @@ def shade(df):
 
 def cfu_calc(mEndo_typ, mEndo_atyp, mFc_typ, mFc_atyp):
     df_meas_mEndo = pd.DataFrame.from_dict(
-        {'Dilution Factor': [1, 1, 1, 0.1, 0.01, 0.001], 'Volume mL': [0.5, 5, 50, 0.5, 5, 50], 'Typical Colonies': np.array(mEndo_typ).astype('str'), 'Atypical Colonies': np.array(mEndo_atyp).astype('str')})
+        {'Dilution Factor': [1, 1, 1, 0.1, 0.01, 0.001], 'Volume mL': [0.5, 5, 50, 0.5, 0.5, 0.5], 'Typical Colonies': np.array(mEndo_typ).astype('str'), 'Atypical Colonies': np.array(mEndo_atyp).astype('str')})
     df_meas_mEndo['Coliforms'] = 'mEndo'
 
     df_meas_mFC = pd.DataFrame.from_dict(
-        {'Dilution Factor': [1, 1, 1, 0.1, 0.01, 0.001], 'Volume mL': [0.5, 5, 50, 0.5, 5, 50], 'Typical Colonies': np.array(mFc_typ).astype('str'), 'Atypical Colonies': np.array(mFc_atyp).astype('str')})
+        {'Dilution Factor': [1, 1, 1, 0.1, 0.01, 0.001], 'Volume mL': [0.5, 5, 50, 0.5, 0.5, 0.5], 'Typical Colonies': np.array(mFc_typ).astype('str'), 'Atypical Colonies': np.array(mFc_atyp).astype('str')})
     df_meas_mFC['Coliforms'] = 'mFC'
 
     df_meas = pd.concat([df_meas_mEndo, df_meas_mFC], ignore_index=True)
