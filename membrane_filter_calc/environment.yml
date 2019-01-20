@@ -1,0 +1,6 @@
+name: membrane_filter
+dependencies:
+  - numpy
+  - pandas
+  - ipywidgets
+  - IPython
