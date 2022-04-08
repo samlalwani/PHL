@@ -4,8 +4,6 @@ This project provides a jupyter notebook for Public Health Lab employees to ente
 
 The notebook will highlight the result sample and will also provide CFU/mL calculation.
 
-If you need this notebook customized for your Lab please contact me.
-
 ## Getting Started
 Start the jupyter notebook "cfu_calc.ipynb"
 
